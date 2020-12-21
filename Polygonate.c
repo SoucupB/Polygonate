@@ -88,3 +88,30 @@ PlaneCoords pg_ComputeOutline(Polygonate self) {
   }
   return coords;
 }
+
+void getLineFromPoint(int32_t pointPosition, int32_t nextPosition, float stY, float stX, float *y, float *x) {
+  if(pointPosition == 0 && nextPosition == 0) {
+    *y = stY + 1.0f;
+    *x = stX;
+  }
+  if(pointPosition == 2 && nextPosition == 0) {
+    *y = stY;
+    *x = stX;
+  }
+  if(pointPosition == 1 && nextPosition == 2) {
+    *y = stY + 1.0f;
+    *x = stX + 1.0f;
+  }
+}
+
+float *pg_CreatePolygon(PlaneCoords self) {
+  float *coords = malloc(sizeof(float) * self->size * 2);
+  int32_t ind = 0;
+  coords[ind] = self->y[0];
+  coords[ind + 1] = self->x[0];
+  ind += 2;
+  for(int32_t i = 0; i < self->size; i++) {
+
+  }
+  return coords;
+}
