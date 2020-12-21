@@ -86,7 +86,13 @@ PlaneCoords pg_ComputeOutline(Polygonate self) {
         j = i;
       }
     }
-    j = getRelativePosition(dEndX, dEndY, endX + dx[(j - 1) % 8], endY + dy[(j - 1) % 8]);
+    if(j == 0) {
+      j = 7;
+    }
+    else {
+      j--;
+    }
+    j = getRelativePosition(dEndX, dEndY, endX + dx[j], endY + dy[j]);
     itX = dEndX;
     itY = dEndY;
   }
