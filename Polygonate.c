@@ -45,8 +45,6 @@ PlaneCoords pg_ComputeOutline(Polygonate self) {
   coords->x = malloc(sizeof(int32_t) * self->h * self->w);
   coords->y = malloc(sizeof(int32_t) * self->h * self->w);
   coords->size = 0;
-  int8_t *checked = malloc(sizeof(int32_t) * self->w * self->h);
-  memset(checked, 0, sizeof(int32_t) * self->w * self->h);
   int32_t stX;
   int32_t stY;
   int32_t endX = -1;
@@ -54,16 +52,13 @@ PlaneCoords pg_ComputeOutline(Polygonate self) {
   getStartPixel(self, &stY, &stX);
   int32_t dy[] = {-1, -1, -1, 0, 1, 1, 1, 0};
   int32_t dx[] = {-1, 0, 1, 1, 1, 0, -1, -1};
-  int32_t itX = stX;
-  int32_t itY = stY;
-  int32_t j = 0;
+  int32_t dEndX = stX;
+  int32_t dEndY = stY;
   int32_t isDone = 0;
+  int32_t i = 0;
   while(!isDone) {
-    endX = itX;
-    endY = itY;
-    int32_t i = j;
-    int32_t dEndX;
-    int32_t dEndY;
+    endX = dEndX;
+    endY = dEndY;
     while(!isDone) {
       dEndX = endX;
       dEndY = endY;
@@ -73,31 +68,23 @@ PlaneCoords pg_ComputeOutline(Polygonate self) {
         isDone = 1;
       }
       if(dEndY >= 0 && dEndY < self->h && dEndX >= 0 && dEndX < self->w &&
-         !checked[dEndY * self->h + dEndX] && self->map[dEndY][dEndX] == self->island) {
+         self->map[dEndY][dEndX] == self->island) {
         coords->x[coords->size] = dEndX;
         coords->y[coords->size] = dEndY;
-        checked[dEndY * self->h + dEndX] = 1;
-        self->map[dEndY][dEndX] = 2;
         coords->size++;
         break;
       }
       else {
         i = (i + 1) % 8;
-        j = i;
       }
     }
-    if(j == 0) {
-      j = 7;
+    if(i == 0) {
+      i = 7;
     }
     else {
-      j--;
+      i--;
     }
-    j = getRelativePosition(dEndX, dEndY, endX + dx[j], endY + dy[j]);
-    itX = dEndX;
-    itY = dEndY;
-  }
-  for(int32_t i = 0; i < coords->size; i++) {
-    printf("%d %d\n", coords->y[i], coords->x[i]);
+    i = getRelativePosition(dEndX, dEndY, endX + dx[i], endY + dy[i]);
   }
   return coords;
 }
