@@ -89,21 +89,6 @@ PlaneCoords pg_ComputeOutline(Polygonate self) {
   return coords;
 }
 
-// void getLineFromPoint(int32_t pointPosition, int32_t nextPosition, float stY, float stX, float *y, float *x) {
-//   if(pointPosition == 0 && nextPosition == 0) {
-//     *y = stY + 1.0f;
-//     *x = stX;
-//   }
-//   if(pointPosition == 2 && nextPosition == 0) {
-//     *y = stY;
-//     *x = stX;
-//   }
-//   if(pointPosition == 1 && nextPosition == 2) {
-//     *y = stY + 1.0f;
-//     *x = stX + 1.0f;
-//   }
-// }
-
 void pg_ShowMap(Polygonate self) {
   for(int32_t i = 0; i < self->h; i++) {
     for(int32_t j = 0; j < self->w; j++) {
@@ -136,10 +121,18 @@ float *pg_CreatePolygon(Polygonate self) {
     }
   }
   PlaneCoords coords = pg_ComputeOutline(expand);
+  float *lines = malloc(sizeof(float) * coords->size * 2 + 1);
+  int32_t index = 1;
   for(int32_t i = 0; i < coords->size; i++) {
-    printf("(%f, %f)\n", (float)(coords->x[i]), (float)(coords->y[i]));
+    while(i < coords->size - 1 && (float)((coords->x[i] >> 1) + (coords->x[i] & 1)) == (float)((coords->x[i + 1] >> 1) + (coords->x[i + 1] & 1))
+                               && (float)((coords->y[i] >> 1) + (coords->y[i] & 1)) == (float)((coords->y[i + 1] >> 1) + (coords->y[i + 1] & 1))) {
+      i++;
+    }
+    lines[index] = (float)((coords->x[i] >> 1) + (coords->x[i] & 1));
+    lines[index + 1] = (float)((coords->y[i] >> 1) + (coords->y[i] & 1));
+    index += 2;
   }
-  printf("\n");
+  lines[0] = (float)index;
   pg_ShowMap(expand);
-  return NULL;
+  return lines + 1;
 }
