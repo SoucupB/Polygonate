@@ -98,6 +98,41 @@ void pg_ShowMap(Polygonate self) {
   }
 }
 
+void pg_Delete(Polygonate self) {
+  for(int32_t i = 0; i < self->h; i++) {
+    free(self->map[i]);
+  }
+  free(self->map);
+  free(self);
+}
+
+void deleteBuffer(float *buffer) {
+  free(buffer - 1);
+}
+
+float *removeDoublePoints(float *src) {
+  float *dst = malloc(sizeof(float) * ((int32_t)src[-1] + 1));
+  int32_t size = (int32_t)src[-1];
+  int32_t index = 1;
+  for(int32_t i = 0; i < size; i += 2) {
+    int8_t checker = 1;
+    for(int32_t j = 0; j < size; j += 2) {
+      if(i != j && src[i] == src[j] && src[i + 1] == src[j + 1]) {
+        checker = 0;
+        break;
+      }
+    }
+    if(checker) {
+      dst[index] = src[i];
+      dst[index + 1] = src[i + 1];
+      index += 2;
+    }
+  }
+  dst[0] = (float)(index - 1);
+  deleteBuffer(src);
+  return dst + 1;
+}
+
 float *pg_CreatePolygon(Polygonate self) {
   int32_t **expansionMap = malloc(sizeof(int32_t *) * self->h * 2);
   for(int32_t i = 0; i < self->h * 2; i++) {
@@ -121,7 +156,7 @@ float *pg_CreatePolygon(Polygonate self) {
     }
   }
   PlaneCoords coords = pg_ComputeOutline(expand);
-  float *lines = malloc(sizeof(float) * coords->size * 2 + 1);
+  float *lines = malloc(sizeof(float) * (coords->size * 2 + 1));
   int32_t index = 1;
   for(int32_t i = 0; i < coords->size; i++) {
     while(i < coords->size - 1 && (float)((coords->x[i] >> 1) + (coords->x[i] & 1)) == (float)((coords->x[i + 1] >> 1) + (coords->x[i + 1] & 1))
@@ -132,7 +167,7 @@ float *pg_CreatePolygon(Polygonate self) {
     lines[index + 1] = (float)((coords->y[i] >> 1) + (coords->y[i] & 1));
     index += 2;
   }
-  lines[0] = (float)index;
-  pg_ShowMap(expand);
-  return lines + 1;
+  lines[0] = (float)(index - 1);
+  pg_Delete(expand);
+  return removeDoublePoints(lines + 1);
 }
