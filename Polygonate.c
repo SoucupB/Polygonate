@@ -89,29 +89,57 @@ PlaneCoords pg_ComputeOutline(Polygonate self) {
   return coords;
 }
 
-void getLineFromPoint(int32_t pointPosition, int32_t nextPosition, float stY, float stX, float *y, float *x) {
-  if(pointPosition == 0 && nextPosition == 0) {
-    *y = stY + 1.0f;
-    *x = stX;
-  }
-  if(pointPosition == 2 && nextPosition == 0) {
-    *y = stY;
-    *x = stX;
-  }
-  if(pointPosition == 1 && nextPosition == 2) {
-    *y = stY + 1.0f;
-    *x = stX + 1.0f;
+// void getLineFromPoint(int32_t pointPosition, int32_t nextPosition, float stY, float stX, float *y, float *x) {
+//   if(pointPosition == 0 && nextPosition == 0) {
+//     *y = stY + 1.0f;
+//     *x = stX;
+//   }
+//   if(pointPosition == 2 && nextPosition == 0) {
+//     *y = stY;
+//     *x = stX;
+//   }
+//   if(pointPosition == 1 && nextPosition == 2) {
+//     *y = stY + 1.0f;
+//     *x = stX + 1.0f;
+//   }
+// }
+
+void pg_ShowMap(Polygonate self) {
+  for(int32_t i = 0; i < self->h; i++) {
+    for(int32_t j = 0; j < self->w; j++) {
+      printf("%d", self->map[i][j]);
+    }
+    printf("\n");
   }
 }
 
-float *pg_CreatePolygon(PlaneCoords self) {
-  float *coords = malloc(sizeof(float) * self->size * 2);
-  int32_t ind = 0;
-  coords[ind] = self->y[0];
-  coords[ind + 1] = self->x[0];
-  ind += 2;
-  for(int32_t i = 0; i < self->size; i++) {
-
+float *pg_CreatePolygon(Polygonate self) {
+  int32_t **expansionMap = malloc(sizeof(int32_t *) * self->h * 2);
+  for(int32_t i = 0; i < self->h * 2; i++) {
+    int32_t *row = malloc(sizeof(int32_t) * self->w * 2);
+    for(int32_t j = 0; j < self->w * 2; j++) {
+      row[j] = 0;
+    }
+    expansionMap[i] = row;
   }
-  return coords;
+  Polygonate expand = pg_Init(expansionMap, self->h * 2, self->w * 2, self->island, self->freeSpace);
+  for(int32_t i = 0; i < self->h; i++) {
+    for(int32_t j = 0; j < self->w; j++) {
+      if(self->map[i][j] == self->island) {
+        int32_t ii = i << 1;
+        int32_t jj = j << 1;
+        expand->map[ii][jj] = self->island;
+        expand->map[ii][jj + 1] = self->island;
+        expand->map[ii + 1][jj] = self->island;
+        expand->map[ii + 1][jj + 1] = self->island;
+      }
+    }
+  }
+  PlaneCoords coords = pg_ComputeOutline(expand);
+  for(int32_t i = 0; i < coords->size; i++) {
+    printf("(%f, %f)\n", (float)(coords->x[i]), (float)(coords->y[i]));
+  }
+  printf("\n");
+  pg_ShowMap(expand);
+  return NULL;
 }

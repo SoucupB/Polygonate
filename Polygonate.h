@@ -19,4 +19,6 @@ struct PlaneCoords_t {
 
 Polygonate pg_Init(int32_t **map, int32_t h, int32_t w, int32_t island, int32_t freeSpace);
 PlaneCoords pg_ComputeOutline(Polygonate self);
+float *pg_CreatePolygon(Polygonate self);
+void pg_ShowMap(Polygonate self);
 

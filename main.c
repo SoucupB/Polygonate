@@ -6,8 +6,9 @@
 int main() {
   int32_t n, m;
   int32_t **map = readFile(&n, &m);
-  ut_ShowMap(map, n, m);
   Polygonate poly = pg_Init(map, n, m, 1, 0);
+  pg_CreatePolygon(poly);
+  pg_ShowMap(poly);
   PlaneCoords coords = pg_ComputeOutline(poly);
   FILE *fd = fopen("result.txt", "w+");
   ut_ColoringMap(fd, n, m);
@@ -28,8 +29,6 @@ int main() {
     }
   }
 
-  ut_ShowMap(map, n, m);
-
-
+  pg_ShowMap(poly);
   fclose(fd);
 }

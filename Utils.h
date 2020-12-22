@@ -2,14 +2,6 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-void ut_ShowMap(int32_t **map, int32_t h, int32_t w) {
-  for(int32_t i = 0; i < h; i++) {
-    for(int32_t j = 0; j < w; j++) {
-      printf("%d", map[i][j]);
-    }
-    printf("\n");
-  }
-}
 
 int32_t **readFile(int *n, int *m) {
   FILE *fd = fopen("inputTests.txt", "r+");
