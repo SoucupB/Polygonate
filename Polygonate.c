@@ -114,6 +114,10 @@ void pg_Delete(Polygonate self) {
   free(self);
 }
 
+void pg_SoftDelete(Polygonate self) {
+  free(self);
+}
+
 void deleteBuffer(float *buffer) {
   free(buffer - 1);
 }

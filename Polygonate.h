@@ -22,4 +22,5 @@ PlaneCoords pg_ComputeOutlineFromPoint(Polygonate self, float stY, float stX);
 PlaneCoords pg_ComputeOutline(Polygonate self);
 Vector pg_CreatePolygon(Polygonate self);
 void pg_ShowMap(Polygonate self);
+void pg_SoftDelete(Polygonate self);
 
