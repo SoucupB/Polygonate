@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "Vector.h"
 
 Polygonate pg_Init(int32_t **map, int32_t h, int32_t w, int32_t island, int32_t freeSpace) {
   Polygonate self = malloc(sizeof(struct Polygonate_t));
@@ -43,9 +42,8 @@ int8_t getRelativePosition(int32_t stX, int32_t stY, int32_t endX, int32_t endY)
 
 PlaneCoords pg_ComputeOutline(Polygonate self) {
   PlaneCoords coords = malloc(sizeof(struct PlaneCoords_t));
-  coords->x = malloc(sizeof(int32_t) * self->h * self->w);
-  coords->y = malloc(sizeof(int32_t) * self->h * self->w);
-  coords->size = 0;
+  coords->x = vct_Init(sizeof(int32_t));
+  coords->y = vct_Init(sizeof(int32_t));
   int32_t stX;
   int32_t stY;
   int32_t endX = -1;
@@ -70,9 +68,8 @@ PlaneCoords pg_ComputeOutline(Polygonate self) {
       }
       if(dEndY >= 0 && dEndY < self->h && dEndX >= 0 && dEndX < self->w &&
          self->map[dEndY][dEndX] == self->island) {
-        coords->x[coords->size] = dEndX;
-        coords->y[coords->size] = dEndY;
-        coords->size++;
+        vct_Push(coords->x, &dEndX);
+        vct_Push(coords->y, &dEndY);
         break;
       }
       else {
@@ -111,30 +108,28 @@ void deleteBuffer(float *buffer) {
   free(buffer - 1);
 }
 
-float *removeDoublePoints(float *src) {
-  float *dst = malloc(sizeof(float) * ((int32_t)src[-1] + 1));
-  int32_t size = (int32_t)src[-1];
-  int32_t index = 1;
-  for(int32_t i = 0; i < size; i += 2) {
+Vector removeDoublePoints(Vector src) {
+  Vector dst = vct_Init(sizeof(float));
+  for(int32_t i = 0; i < src->size; i += 2) {
     int8_t checker = 1;
-    for(int32_t j = 0; j < size; j += 2) {
-      if(i != j && src[i] == src[j] && src[i + 1] == src[j + 1]) {
+    for(int32_t j = 0; j < src->size; j += 2) {
+      if(i != j && ((float *)src->buffer)[i] == ((float *)src->buffer)[j] && ((float *)src->buffer)[i + 1] == ((float *)src->buffer)[j + 1]) {
         checker = 0;
         break;
       }
     }
     if(checker) {
-      dst[index] = src[i];
-      dst[index + 1] = src[i + 1];
-      index += 2;
+      float x = ((float *)src->buffer)[i];
+      float y = ((float *)src->buffer)[i + 1];
+      vct_Push(dst, &x);
+      vct_Push(dst, &y);
     }
   }
-  dst[0] = (float)(index - 1);
-  deleteBuffer(src);
-  return dst + 1;
+  vct_Delete(src);
+  return dst;
 }
 
-float *pg_CreatePolygon(Polygonate self) {
+Vector pg_CreatePolygon(Polygonate self) {
   int32_t **expansionMap = malloc(sizeof(int32_t *) * self->h * 2);
   for(int32_t i = 0; i < self->h * 2; i++) {
     int32_t *row = malloc(sizeof(int32_t) * self->w * 2);
@@ -157,18 +152,25 @@ float *pg_CreatePolygon(Polygonate self) {
     }
   }
   PlaneCoords coords = pg_ComputeOutline(expand);
-  float *lines = malloc(sizeof(float) * (coords->size * 2 + 1));
-  int32_t index = 1;
-  for(int32_t i = 0; i < coords->size; i++) {
-    while(i < coords->size - 1 && (float)((coords->x[i] >> 1) + (coords->x[i] & 1)) == (float)((coords->x[i + 1] >> 1) + (coords->x[i + 1] & 1))
-                               && (float)((coords->y[i] >> 1) + (coords->y[i] & 1)) == (float)((coords->y[i + 1] >> 1) + (coords->y[i + 1] & 1))) {
+  Vector lines = vct_Init(sizeof(float));
+  for(int32_t i = 0; i < coords->x->size; i++) {
+    while(i < coords->x->size - 1 && (float)((((int32_t *)coords->x->buffer)[i] >> 1) + (((int32_t *)coords->x->buffer)[i] & 1)) ==
+                                     (float)((((int32_t *)coords->x->buffer)[i + 1] >> 1) + (((int32_t *)coords->x->buffer)[i + 1] & 1))
+                                  && (float)((((int32_t *)coords->y->buffer)[i] >> 1) + (((int32_t *)coords->y->buffer)[i] & 1)) ==
+                                     (float)((((int32_t *)coords->y->buffer)[i + 1] >> 1) + (((int32_t *)coords->y->buffer)[i + 1] & 1))) {
       i++;
     }
-    lines[index] = (float)((coords->x[i] >> 1) + (coords->x[i] & 1));
-    lines[index + 1] = (float)((coords->y[i] >> 1) + (coords->y[i] & 1));
-    index += 2;
+    int32_t x = ((int32_t *)coords->x->buffer)[i];
+    int32_t y = ((int32_t *)coords->y->buffer)[i];
+    float valX = (float)((x >> 1) + (x & 1));
+    float valY = (float)((y >> 1) + (y & 1));
+    vct_Push(lines, &valX);
+    vct_Push(lines, &valY);
   }
-  lines[0] = (float)(index - 1);
   pg_Delete(expand);
-  return removeDoublePoints(lines + 1);
+  // for(int32_t i = 0; i < lines->size; i += 2) {
+  //   printf("(%f, %f)\n", ((float *)lines->buffer)[i], ((float *)lines->buffer)[i + 1]);
+  // }
+  // exit(0);
+  return removeDoublePoints(lines);
 }
