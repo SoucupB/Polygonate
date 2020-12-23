@@ -178,9 +178,5 @@ Vector pg_CreatePolygon(Polygonate self) {
     vct_Push(lines, &valY);
   }
   pg_Delete(expand);
-  // for(int32_t i = 0; i < lines->size; i += 2) {
-  //   printf("(%f, %f)\n", ((float *)lines->buffer)[i], ((float *)lines->buffer)[i + 1]);
-  // }
-  // exit(0);
   return removeDoublePoints(lines);
 }
