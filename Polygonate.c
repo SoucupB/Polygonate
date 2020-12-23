@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 
+PlaneCoords computeOutline(Polygonate self, int32_t stY, int32_t stX);
+
 Polygonate pg_Init(int32_t **map, int32_t h, int32_t w, int32_t island, int32_t freeSpace) {
   Polygonate self = malloc(sizeof(struct Polygonate_t));
   self->map = map;
@@ -40,15 +42,16 @@ int8_t getRelativePosition(int32_t stX, int32_t stY, int32_t endX, int32_t endY)
   return -1;
 }
 
-PlaneCoords pg_ComputeOutline(Polygonate self) {
+PlaneCoords pg_ComputeOutlineFromPoint(Polygonate self, float stY, float stX) {
+  return computeOutline(self, stY, stX);
+}
+
+PlaneCoords computeOutline(Polygonate self, int32_t stY, int32_t stX) {
   PlaneCoords coords = malloc(sizeof(struct PlaneCoords_t));
   coords->x = vct_Init(sizeof(int32_t));
   coords->y = vct_Init(sizeof(int32_t));
-  int32_t stX;
-  int32_t stY;
   int32_t endX = -1;
   int32_t endY = -1;
-  getStartPixel(self, &stY, &stX);
   int32_t dy[] = {-1, -1, -1, 0, 1, 1, 1, 0};
   int32_t dx[] = {-1, 0, 1, 1, 1, 0, -1, -1};
   int32_t dEndX = stX;
@@ -85,6 +88,13 @@ PlaneCoords pg_ComputeOutline(Polygonate self) {
     i = getRelativePosition(dEndX, dEndY, endX + dx[i], endY + dy[i]);
   }
   return coords;
+}
+
+PlaneCoords pg_ComputeOutline(Polygonate self) {
+  int32_t stY;
+  int32_t stX;
+  getStartPixel(self, &stY, &stX);
+  return computeOutline(self, stY, stX);
 }
 
 void pg_ShowMap(Polygonate self) {
