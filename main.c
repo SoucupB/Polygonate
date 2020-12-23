@@ -2,8 +2,26 @@
 #include <stdlib.h>
 #include "Polygonate.h"
 #include "Utils.h"
+#include "Vector.h"
 
 int main() {
+  Vector ana = vct_Init(sizeof(float));
+  float a = 5.3;
+  vct_Push(ana, &a);
+  vct_Push(ana, &a);
+  vct_Push(ana, &a);
+  vct_Push(ana, &a);
+  vct_Push(ana, &a);
+  vct_Push(ana, &a);
+  vct_Push(ana, &a);
+  vct_Push(ana, &a);
+  vct_Push(ana, &a);
+  vct_Push(ana, &a);
+  for(int32_t i = 0; i < ana->size; i++) {
+    printf("%f ", ((float*)ana->buffer)[i]);
+  }
+  printf("\n%I64d", ana->capacity);
+  exit(0);
   int32_t n, m;
   int32_t **map = readFile(&n, &m);
   Polygonate poly = pg_Init(map, n, m, 1, 0);
