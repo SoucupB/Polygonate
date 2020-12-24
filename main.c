@@ -19,9 +19,11 @@ int main() {
   PlaneCoords coords = pg_ComputeOutline(poly);
   FILE *fd = fopen("result.txt", "w+");
   ut_ColoringMap(fd, n, m);
+  int32_t *ccx = coords->x->buffer;
+  int32_t *ccy = coords->y->buffer;
   for(int32_t i = 0; i < coords->x->size; i++) {
-    map[((int32_t *)coords->y->buffer)[i]][((int32_t *)coords->x->buffer)[i]] = 2;
-    printf("%d %d\n", ((int32_t *)coords->y->buffer)[i], ((int32_t *)coords->x->buffer)[i]);
+    map[ccy[i]][ccx[i]] = 2;
+    printf("%d %d\n", ccy[i], ccx[i]);
   }
 
   for(int32_t i = 0; i < n; i++) {

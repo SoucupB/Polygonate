@@ -18,8 +18,8 @@ void pushElement(Vector self, void *element) {
 
 void vct_Push(Vector self, void *element) {
   if(self->capacity == self->size) {
-    self->buffer = realloc(self->buffer, (self->capacity << 1) * self->offsetSize);
-    self->capacity <<= 1;
+    self->buffer = realloc(self->buffer, (self->capacity << 2) * self->offsetSize);
+    self->capacity <<= 2;
   }
   pushElement(self, element);
   self->size++;

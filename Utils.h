@@ -28,6 +28,10 @@ void fprintLine(FILE *fd, float x, float y, float xx, float yy) {
           y, yy);
 }
 
+void printLine(float x, float y, float xx, float yy) {
+  printf("(((1 - t) * %f + t * %f), ((1 - t) * %f + t * %f))\n", x, xx, y, yy);
+}
+
 void ut_ColoringCells(FILE *fd, int32_t y, int32_t x, int8_t type) {
   if(type == 1) {
     fprintLine(fd, x, y, x + 1.0, y + 1.0);

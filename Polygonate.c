@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "Utils.h"
 
 PlaneCoords computeOutline(Polygonate self, int32_t stY, int32_t stX);
 
@@ -141,6 +142,18 @@ Vector removeDoublePoints(Vector src) {
   }
   vct_Delete(src);
   return dst;
+}
+
+void pg_ShowLines(Vector lines) {
+  printf("%d\n", (int32_t)lines->size);
+  float *allLines = (float *)lines->buffer;
+  for(int32_t i = 0; i < (int32_t)lines->size; i += 2) {
+    printf("(%f, %f)\n", allLines[i], allLines[i + 1]);
+  }
+  printf("\n");
+  for(int32_t i = 0; i < (int32_t)lines->size; i += 2) {
+    printLine(allLines[i], allLines[i + 1], allLines[(i + 2) % lines->size], allLines[(i + 3) % lines->size]);
+  }
 }
 
 Vector pg_CreatePolygon(Polygonate self) {
