@@ -25,7 +25,7 @@ static void test_simple_polygon(void **state) {
   int32_t **buffer = copyMap(map, h, w);
   Polygonate poly = pg_Init(buffer, h, w, 1, 0);
   Vector lines = pg_CreatePolygon(poly);
-  pg_ShowLines(lines);
+  //pg_ShowLines(lines);
   assert_true(lines->size != 0);
 }
 

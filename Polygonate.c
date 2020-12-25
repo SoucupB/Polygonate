@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "Utils.h"
 
 PlaneCoords computeOutline(Polygonate self, int32_t stY, int32_t stX);
 
@@ -28,6 +27,50 @@ void getStartPixel(Polygonate self, int32_t *y, int32_t *x) {
   }
   *y = -1;
   *x = -1;
+}
+
+float *getPolygonOutline(int32_t *xS, int32_t *yS, int32_t size, int32_t *newSize) {
+  int32_t minX = INF;
+  int32_t minY = INF;
+  int32_t maxX = 0;
+  int32_t maxY = 0;
+  for(int32_t i = 0; i < size; i++) {
+    if(xS[i] < minX) {
+      minX = xS[i];
+    }
+    if(xS[i] > maxX) {
+      maxX = xS[i];
+    }
+  }
+  for(int32_t i = 0; i < size; i++) {
+    if(yS[i] < minY) {
+      minY = yS[i];
+    }
+    if(yS[i] > maxY) {
+      maxY = yS[i];
+    }
+  }
+  int32_t w = maxX - minX + 3;
+  int32_t h = maxY - minY + 3;
+  int32_t **buffer = malloc(sizeof(int32_t *) * h);
+  for(int32_t i = 0; i < h; i++) {
+    buffer[i] = malloc(sizeof(int32_t) * w);
+    memset(buffer[i], 0, sizeof(int32_t) * w);
+  }
+  for(int32_t i = 0; i < size; i++) {
+    buffer[yS[i] - minY + 1][xS[i] - minX + 1] = 1;
+  }
+  Polygonate poly = pg_Init(buffer, h, w, 1, 0);
+  pg_ShowMap(poly);
+  Vector result = pg_CreatePolygon(poly);
+  *newSize = result->size;
+  float *linesBuffer = result->buffer;
+  for(int32_t i = 0; i < *newSize; i += 2) {
+    linesBuffer[i] += minX;
+    linesBuffer[i + 1] += minY;
+  }
+  free(result);
+  return linesBuffer;
 }
 
 int8_t getRelativePosition(int32_t stX, int32_t stY, int32_t endX, int32_t endY) {
@@ -144,17 +187,17 @@ Vector removeDoublePoints(Vector src) {
   return dst;
 }
 
-void pg_ShowLines(Vector lines) {
-  printf("%d\n", (int32_t)lines->size);
-  float *allLines = (float *)lines->buffer;
-  for(int32_t i = 0; i < (int32_t)lines->size; i += 2) {
-    printf("(%f, %f)\n", allLines[i], allLines[i + 1]);
-  }
-  printf("\n");
-  for(int32_t i = 0; i < (int32_t)lines->size; i += 2) {
-    printLine(allLines[i], allLines[i + 1], allLines[(i + 2) % lines->size], allLines[(i + 3) % lines->size]);
-  }
-}
+// void pg_ShowLines(Vector lines) {
+//   printf("%d\n", (int32_t)lines->size);
+//   float *allLines = (float *)lines->buffer;
+//   for(int32_t i = 0; i < (int32_t)lines->size; i += 2) {
+//     printf("(%f, %f)\n", allLines[i], allLines[i + 1]);
+//   }
+//   printf("\n");
+//   for(int32_t i = 0; i < (int32_t)lines->size; i += 2) {
+//     printLine(allLines[i], allLines[i + 1], allLines[(i + 2) % lines->size], allLines[(i + 3) % lines->size]);
+//   }
+// }
 
 Vector pg_CreatePolygon(Polygonate self) {
   int32_t **expansionMap = malloc(sizeof(int32_t *) * self->h * 2);
