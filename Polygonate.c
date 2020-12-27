@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 PlaneCoords computeOutline(Polygonate self, int32_t stY, int32_t stX);
 
@@ -71,6 +72,27 @@ float *getPolygonOutline(int32_t *xS, int32_t *yS, int32_t size, int32_t *newSiz
   }
   free(result);
   return linesBuffer;
+}
+
+float angleBetweenLines(float x1, float y1, float x2, float y2,
+                         float x3, float y3, float x4, float y4) {
+  float m1 = (x1 - x2 + 1e-6f) / (y1 - y2 + 1e-6f);
+  float m2 = (x3 - x4 + 1e-6f) / (y3 - y4 + 1e-6f);
+  return atanf((m1 - m2) / (1.0f + m1 * m2));
+}
+
+float *regulatePolygons(float *buffer, int32_t size, float by) {
+  for(int32_t i = 0; i < size - 2; i += 4) {
+    //float xMiddlePoint = buffer[i + 2];
+   // float yMiddlePoint = buffer[i + 3];
+    float angle = angleBetweenLines(buffer[i], buffer[i + 1], buffer[i + 2], buffer[i + 3],
+                                    buffer[i + 2], buffer[i + 3], buffer[i + 4], buffer[i + 5]);
+    printf("%f\n", 180.0f / (1.0f / ((angle / 2.0f) / acos(-1.0f))));
+    float vx = cos(angle / 2.0f) * 1.0f;
+    float vy = sin(angle / 2.0f) * 1.0f;
+    printf("(%f, %f)\n", vy, vx);
+  }
+  return 0;
 }
 
 int8_t getRelativePosition(int32_t stX, int32_t stY, int32_t endX, int32_t endY) {

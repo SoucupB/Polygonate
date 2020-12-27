@@ -26,5 +26,6 @@ float *getPolygonOutline(int32_t *xS, int32_t *yS, int32_t size, int32_t *newSiz
 Vector pg_CreatePolygon(Polygonate self);
 void pg_ShowMap(Polygonate self);
 void pg_SoftDelete(Polygonate self);
+float *regulatePolygons(float *buffer, int32_t size, float by);
 //void pg_ShowLines(Vector lines);
 
